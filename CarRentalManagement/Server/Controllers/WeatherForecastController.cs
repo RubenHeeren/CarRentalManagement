@@ -26,6 +26,13 @@ namespace CarRentalManagement.Server.Controllers
             _logger = logger;
         }
 
+        // REST verbs are GET POST PUT DELETE.
+        // Correspond to database 'CRUD' operations
+        // (C)reate = POST
+        // (R)ead = GET
+        // (U)pdate = PUT
+        // (D)elete = DELETE
+        // REST in a nutshell just maps database operations to the HTTP protocol verbs and exposes them in an API callable by other applications.
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
