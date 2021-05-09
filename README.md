@@ -1,5 +1,5 @@
 # CarRentalManagement #
-Repo for the learning project built in the Udemy course "Modern Web Development with Blazor and .NET Core 5".
+Repo for the learning project built in the Udemy course "Modern Web Development with Blazor and .NET Core 5".__
 Built in .NET version 5.
 
 [Link to course](https://www.udemy.com/course/modern-web-development-with-blazor-and-net-core-5 "Link to course")
