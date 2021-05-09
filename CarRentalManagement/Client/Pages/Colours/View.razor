@@ -1,0 +1,18 @@
+﻿@page "/colours/view/{id:int}"
+@inject HttpClient _client;
+
+<h3>Viewing details for the colour @colour.Name.</h3>
+
+<FormComponent Colour="colour" Disabled ="true"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Colour colour = new Colour();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        colour = await _client.GetFromJsonAsync<Colour>($"{Endpoints.ColoursEndpoint}{id}");
+    }
+}

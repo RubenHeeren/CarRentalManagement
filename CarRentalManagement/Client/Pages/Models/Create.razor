@@ -1,0 +1,21 @@
+﻿@page "/models/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Add a new model</h3>
+<hr />
+<br />
+
+<FormComponent ButtonText="Add model" OnValidSubmit="@CreateModel" Model="@model"> </FormComponent>
+
+@code
+{
+    // All values received as input in the form get bound to this object.
+    private Model model = new Model();
+
+    private async Task CreateModel()
+    {
+        await _client.PostAsJsonAsync(Endpoints.ModelsEndpoint, model);
+        _navManager.NavigateTo("/models/");
+    }
+}

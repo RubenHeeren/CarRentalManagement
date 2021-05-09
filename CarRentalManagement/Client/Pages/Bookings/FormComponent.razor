@@ -1,0 +1,96 @@
+﻿@inject HttpClient _client;
+
+@* Model specifies which data type/object this form is for. *@
+<EditForm Model="@Booking" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <fieldset disabled="@Disabled">
+        @* Booking vehicle dropdown *@
+        <div class="form-group">
+            <label>Vehicle: </label>
+            <div>
+                @* Blazor has its own <input> component called InputSelect. *@
+                <InputSelect @bind-Value="Booking.VehicleId" class="form-control">
+                    <option value="">-- Select vehicle --</option>
+                    @if (vehicles != null)
+                    {
+                        foreach (Vehicle vehicle in vehicles)
+                        {
+                            <option value="@vehicle.Id">@vehicle.Colour.Name @vehicle.Make.Name @vehicle.Model.Name | @vehicle.LicensePlateNumber</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Booking.VehicleId)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Booking customer dropdown *@
+        <div class="form-group">
+            <label>Customer: </label>
+            <div>
+                @* Blazor has its own <input> component called InputSelect. *@
+                <InputSelect @bind-Value="Booking.CustomerId" class="form-control">
+                    <option value="">-- Select customer --</option>
+                    @if (customers != null)
+                    {
+                        foreach (Customer customer in customers)
+                        {
+                            <option value="@customer.Id">@customer.TaxId | @customer.EmailAddress</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Booking.CustomerId)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Date out input *@
+        <div class="form-group">
+            <label>Date out:</label>
+            <div>
+                <InputDate @bind-Value="@Booking.DateOut" class="form-control" />
+                <ValidationMessage For="@(() => Booking.DateOut)" />
+            </div>
+        </div>
+
+        @* Date in input *@
+        @if (Booking.Id > 0)
+        {
+            <div class="form-group">
+                <label>Date in:</label>
+                <div>
+                    <InputDate @bind-Value="@Booking.DateIn" class="form-control"></InputDate>
+                    <ValidationMessage For="@(() => Booking.DateIn)"></ValidationMessage>
+                </div>
+            </div>
+        }
+    </fieldset>
+
+    @if (Disabled == false)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
+
+    <BackToList Target="bookings"></BackToList>
+
+</EditForm>
+
+@code
+{
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Booking Booking { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    // Callback for the form on submit.
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private IList<Vehicle> vehicles;
+    private IList<Customer> customers;
+
+    protected async override Task OnInitializedAsync()
+    {
+        vehicles = await _client.GetFromJsonAsync<List<Vehicle>>(Endpoints.VehiclesEndpoint);
+        customers = await _client.GetFromJsonAsync<List<Customer>>(Endpoints.CustomersEndpoint);
+    }
+}

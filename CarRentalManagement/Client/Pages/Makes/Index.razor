@@ -1,0 +1,76 @@
+﻿@page "/makes/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+@*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
+
+<h3 class="card-title">Car makes</h3>
+<hr />
+<br />
+
+<a href="/makes/create" class="btn btn-secondary">
+    <span class="oi oi-plus">
+        Add a new make
+    </span>
+</a>
+
+@if (makes == null)
+{
+    <div class="alert alert-info">
+        Loading makes...
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var make in makes)
+            {
+                <tr>
+                    <td>@make.Name</td>
+                    <td>
+                        <a href="/makes/view/@make.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/makes/edit/@make.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(make.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>               
+            }
+        </tbody>
+    </table>
+}
+
+@code 
+{
+    private List<Make> makes;
+
+    // One of the component callback methods. This runs when the component intializes. Used for initialization.
+    protected async override Task OnInitializedAsync()
+    {
+        makes = await _client.GetFromJsonAsync<List<Make>>(Endpoints.MakesEndpoint);
+    }
+
+    private async Task Delete(int makeId)
+    {
+        var make = makes.First(make => make.Id == makeId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the make \"{make.Name}\"?"))
+        {
+            await _client.DeleteAsync($"{Endpoints.MakesEndpoint}{makeId}");
+            // Refresh cached list of makes
+            await OnInitializedAsync();
+        }
+    }
+}

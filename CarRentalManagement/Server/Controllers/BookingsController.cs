@@ -12,10 +12,10 @@ using CarRentalManagement.Server.IRepository;
 
 namespace CarRentalManagement.Server.Controllers
 {
-    // [controller] bookings it so the "Controller" part of the name is ignored.
+    // api/[controller] bookings it so the "Controller" part of the name is ignored.
     // Example: this API endpoint can be accessed with just websitename.com/Bookings instead of websitename.com/BookingsController.
     // [Authorize]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class BookingsController : ControllerBase
     {
@@ -31,7 +31,8 @@ namespace CarRentalManagement.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBookings()
         {
-            var bookings = await _unitOfWork.Bookings.GetAll();
+            List<string> includes = new List<string> { "Vehicle", "Customer" };
+            var bookings = await _unitOfWork.Bookings.GetAll(includes: includes);
             return Ok(bookings);
         }
 
@@ -39,7 +40,8 @@ namespace CarRentalManagement.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBooking(int id)
         {
-            var booking = await _unitOfWork.Bookings.Get(q => q.Id == id);
+            List<string> includes = new List<string> { "Vehicle", "Customer" };
+            var booking = await _unitOfWork.Bookings.Get(bookingToGet => bookingToGet.Id == id, includes);
 
             if (booking == null)
             {

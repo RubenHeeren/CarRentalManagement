@@ -1,0 +1,82 @@
+﻿@page "/vehicles/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+@*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
+
+<h3 class="card-title">Vehicles</h3>
+<hr />
+<br />
+
+<a href="/vehicles/create" class="btn btn-secondary">
+    <span class="oi oi-plus">
+        Add a new vehicle
+    </span>
+</a>
+
+@if (vehicles == null)
+{
+    <div class="alert alert-info">
+        Loading vehicles...
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Year</th>
+                <th>Daily Rate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehicle in vehicles)
+            {
+                <tr>
+                    <td>@vehicle.Make.Name</td>
+                    <td>@vehicle.Model.Name</td>
+                    <td>@vehicle.Year</td>
+                    <td>@vehicle.RentalRate</td>
+                    <td>
+                        <a href="/vehicles/view/@vehicle.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/vehicles/edit/@vehicle.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(vehicle.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>               
+            }
+        </tbody>
+    </table>
+}
+
+@code 
+{
+    private List<Vehicle> vehicles;
+
+    // One of the component callback methods. This runs when the component intializes. Used for initialization.
+    protected async override Task OnInitializedAsync()
+    {
+        vehicles = await _client.GetFromJsonAsync<List<Vehicle>>(Endpoints.VehiclesEndpoint);
+    }
+
+    private async Task Delete(int vehicleId)
+    {
+        var vehicle = vehicles.First(vehicle => vehicle.Id == vehicleId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the vehicle \"{vehicle.Make.Name} {vehicle.Model.Name}\"?"))
+        {
+            await _client.DeleteAsync($"{Endpoints.VehiclesEndpoint}{vehicleId}");
+            // Refresh cached list of vehicles
+            await OnInitializedAsync();
+        }
+    }
+}

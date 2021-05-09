@@ -12,10 +12,10 @@ using CarRentalManagement.Server.IRepository;
 
 namespace CarRentalManagement.Server.Controllers
 {
-    // [controller] models it so the "Controller" part of the name is ignored.
+    // api/[controller] models it so the "Controller" part of the name is ignored.
     // Example: this API endpoint can be accessed with just websitename.com/Models instead of websitename.com/ModelsController.
     // [Authorize]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ModelsController : ControllerBase
     {

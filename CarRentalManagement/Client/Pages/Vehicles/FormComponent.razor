@@ -1,0 +1,130 @@
+﻿@inject HttpClient _client;
+
+@* Model specifies which data type/object this form is for. *@
+<EditForm Model="@Vehicle" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <fieldset disabled="@Disabled">
+        @* Vehicle makes dropdown *@
+        <div class="form-group">
+            <label>Make: </label>
+            <div>
+                @* Blazor has its own <input> component called InputSelect. *@
+                <InputSelect @bind-Value="Vehicle.MakeId" class="form-control">
+                    <option value="">-- Select make --</option>
+                    @if (makes != null)
+                    {
+                        foreach (Make make in makes)
+                        {
+                            <option value="@make.Id">@make.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Vehicle.MakeId)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle models dropdown *@
+        <div class="form-group">
+            <label>Model: </label>
+            <div>
+                <select @bind="Vehicle.ModelId" class="form-control">
+                    <option value="">-- Select model --</option>
+                    @if (models != null)
+                    {
+                        foreach (Model model in models)
+                        {
+                            <option value="@model.Id">@model.Name</option>
+                        }
+                    }
+                </select>
+                <ValidationMessage For="@(() => Vehicle.ModelId)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle colours dropdown *@
+        <div class="form-group">
+            <label>Colour: </label>
+            <div>
+                <select @bind="Vehicle.ColourId" class="form-control">
+                    <option value="">-- Select colour --</option>
+                    @if (colours != null)
+                    {
+                        foreach (Colour colour in colours)
+                        {
+                            <option value="@colour.Id">@colour.Name</option>
+                        }
+                    }
+                </select>
+                <ValidationMessage For="@(() => Vehicle.ColourId)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle year input field *@
+        <div class="form-group">
+            <label>Year: </label>
+            <div>
+                <InputNumber @bind-Value="@Vehicle.Year" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => Vehicle.Year)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle license plate number input field *@
+        <div class="form-group">
+            <label>License plate number: </label>
+            <div>
+                <InputText @bind-Value="@Vehicle.LicensePlateNumber" class="form-control"></InputText>
+                <ValidationMessage For="@(() => Vehicle.LicensePlateNumber)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle license plate number input field *@
+        <div class="form-group">
+            <label>Vehicle identification number: </label>
+            <div>
+                <InputText @bind-Value="@Vehicle.Vin" class="form-control"></InputText>
+                <ValidationMessage For="@(() => Vehicle.Vin)"></ValidationMessage>
+            </div>
+        </div>
+
+        @* Vehicle license plate number input field *@
+        <div class="form-group">
+            <label>Daily rental rate: </label>
+            <div>
+                <InputNumber @bind-Value="@Vehicle.RentalRate" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => Vehicle.RentalRate)"></ValidationMessage>
+            </div>
+        </div>
+    </fieldset>
+
+    @if (Disabled == false)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
+
+    <BackToList Target="vehicles"></BackToList>
+</EditForm>
+
+@code
+{
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Vehicle Vehicle { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+
+    // Callback for the form on submit.
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private IList<Make> makes;
+    private IList<Model> models;
+    private IList<Colour> colours;
+
+    protected async override Task OnInitializedAsync()
+    {
+        makes = await _client.GetFromJsonAsync<List<Make>>(Endpoints.MakesEndpoint);
+        models = await _client.GetFromJsonAsync<List<Model>>(Endpoints.ModelsEndpoint);
+        colours = await _client.GetFromJsonAsync<List<Colour>>(Endpoints.ColoursEndpoint);
+    }
+}

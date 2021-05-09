@@ -1,11 +1,14 @@
 ﻿using CarRentalManagement.Server.Data;
 using CarRentalManagement.Server.IRepository;
+using CarRentalManagement.Server.Models;
 using CarRentalManagement.Shared.Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CarRentalManagement.Server.Repository
@@ -13,6 +16,7 @@ namespace CarRentalManagement.Server.Repository
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
+        private UserManager<ApplicationUser> _userManager;
 
         private IGenericRepository<Make> _makes;
         private IGenericRepository<Model> _models;
@@ -21,9 +25,10 @@ namespace CarRentalManagement.Server.Repository
         private IGenericRepository<Customer> _customers;
         private IGenericRepository<Vehicle> _vehicles;
 
-        public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // ?? = is null? Same as if (Makes == null). Just some syntactic sugar.
@@ -46,7 +51,9 @@ namespace CarRentalManagement.Server.Repository
 
         public async Task Save(HttpContext httpContext)
         {
-            string username = httpContext.User.Identity.Name;
+            //string username = httpContext.User.Identity.Name;
+            string userId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await _userManager.FindByIdAsync(userId);
 
             var entries = _context.ChangeTracker.Entries()
                 .Where(q => q.State == EntityState.Modified || q.State == EntityState.Added);
@@ -54,12 +61,12 @@ namespace CarRentalManagement.Server.Repository
             foreach (var entry in entries)
             {
                 ((BaseDomainModel)entry.Entity).DateUpdated = DateTime.Now;
-                ((BaseDomainModel)entry.Entity).UpdatedBy = username;
+                ((BaseDomainModel)entry.Entity).UpdatedBy = user.UserName;
 
                 if (entry.State == EntityState.Added)
                 {
                     ((BaseDomainModel)entry.Entity).DateCreated = DateTime.Now;
-                    ((BaseDomainModel)entry.Entity).CreatedBy = username;
+                    ((BaseDomainModel)entry.Entity).CreatedBy = user.UserName;
                 }
             }
 

@@ -1,0 +1,76 @@
+﻿@page "/models/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+@*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
+
+<h3 class="card-title">Car models</h3>
+<hr />
+<br />
+
+<a href="/models/create" class="btn btn-secondary">
+    <span class="oi oi-plus">
+        Add a new model
+    </span>
+</a>
+
+@if (models == null)
+{
+    <div class="alert alert-info">
+        Loading models...
+    </div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var model in models)
+            {
+                <tr>
+                    <td>@model.Name</td>
+                    <td>
+                        <a href="/models/view/@model.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/models/edit/@model.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(model.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>               
+            }
+        </tbody>
+    </table>
+}
+
+@code 
+{
+    private List<Model> models;
+
+    // One of the component callback methods. This runs when the component intializes. Used for initialization.
+    protected async override Task OnInitializedAsync()
+    {
+        models = await _client.GetFromJsonAsync<List<Model>>(Endpoints.ModelsEndpoint);
+    }
+
+    private async Task Delete(int modelId)
+    {
+        var model = models.First(model => model.Id == modelId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the model \"{model.Name}\"?"))
+        {
+            await _client.DeleteAsync($"{Endpoints.ModelsEndpoint}{modelId}");
+            // Refresh cached list of models
+            await OnInitializedAsync();
+        }
+    }
+}

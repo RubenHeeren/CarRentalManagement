@@ -1,0 +1,27 @@
+﻿@* {id:int} customers it so .NET knows this page expects a parameter called id of the data type int. *@
+@page "/customers/edit/{id:int}"
+@inject HttpClient _client;
+@inject NavigationManager _navManager;
+
+<h3>Edit</h3>
+
+<FormComponent ButtonText="Update customer" OnValidSubmit="@EditCustomer" Customer="customer"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Customer customer = new Customer();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        customer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}{id}");
+    }
+
+    private async Task EditCustomer()
+    {
+        // Put to API in server project.
+        await _client.PutAsJsonAsync($"{Endpoints.CustomersEndpoint}{id}", customer);
+        _navManager.NavigateTo("/customers/");
+    }
+}

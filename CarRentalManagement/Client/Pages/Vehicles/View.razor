@@ -1,0 +1,29 @@
+﻿@page "/vehicles/view/{id:int}"
+@inject HttpClient _client;
+
+@if (vehicle != null && vehicle.Make != null && vehicle.Model != null)
+{
+    <h3>
+        Viewing details for the vehicle @vehicle.Make.Name @vehicle.Model.Name
+    </h3>
+}
+else
+{
+    <h3>
+        Loading vehicle details...
+    </h3>
+}
+
+<FormComponent Vehicle="vehicle" Disabled="true"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Vehicle vehicle = new Vehicle();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        vehicle = await _client.GetFromJsonAsync<Vehicle>($"{Endpoints.VehiclesEndpoint}{id}");
+    }
+}

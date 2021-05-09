@@ -1,0 +1,19 @@
+﻿@* {id:int} customers it so .NET knows this page expects a parameter called id of the data type int. *@
+@page "/bookings/view/{id:int}"
+@inject HttpClient _client;
+
+<h3>Viewing details for booking @booking.Id.</h3>
+
+<FormComponent Booking="booking" Disabled ="true"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Booking booking = new Booking();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        booking = await _client.GetFromJsonAsync<Booking>($"{Endpoints.BookingsEndpoint}{id}");
+    }
+}

@@ -1,0 +1,18 @@
+﻿@page "/models/view/{id:int}"
+@inject HttpClient _client;
+
+<h3>Viewing details for the model @model.Name.</h3>
+
+<FormComponent Model="model" Disabled ="true"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Model model = new Model();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        model = await _client.GetFromJsonAsync<Model>($"{Endpoints.ModelsEndpoint}{id}");
+    }
+}

@@ -1,0 +1,27 @@
+﻿@* {id:int} makes it so .NET knows this page expects a parameter called id of the data type int. *@
+@page "/makes/edit/{id:int}"
+@inject HttpClient _client;
+@inject NavigationManager _navManager;
+
+<h3>Edit</h3>
+
+<FormComponent ButtonText="Update make" OnValidSubmit="@EditMake" Make="make"> </FormComponent>
+
+@code
+{
+    [Parameter] public int id { get; set; }
+    Make make = new Make();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        // Fetch from API in server project.
+        make = await _client.GetFromJsonAsync<Make>($"{Endpoints.MakesEndpoint}{id}");
+    }
+
+    private async Task EditMake()
+    {
+        // Put to API in server project.
+        await _client.PutAsJsonAsync($"{Endpoints.MakesEndpoint}{id}", make);
+        _navManager.NavigateTo("/makes/");
+    }
+}

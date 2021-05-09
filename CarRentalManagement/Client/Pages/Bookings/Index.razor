@@ -1,0 +1,82 @@
+﻿@page "/bookings/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+@*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
+
+<h3 class="card-title">Bookings</h3>
+<hr />
+<br />
+
+<a href="/bookings/create" class="btn btn-secondary">
+    <span class="oi oi-plus">
+        Add a new booking
+    </span>
+</a>
+
+@if (bookings == null)
+{
+    <div class="alert alert-info">
+        Loading bookings...
+    </div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Customer tax id</th>
+                <th>Date</th>
+                <th>Duration in days</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in bookings)
+            {
+                <tr>
+                    <td>@booking.Customer.TaxId</td>
+                    <td>@booking.DateCreated.Date.ToString("dd MMMM yyyy")</td>
+                    <td>
+                        @(booking.DateIn != null ? (booking.DateIn.Value - booking.DateOut).TotalDays.ToString() : "To be determined")
+                    </td>
+                    <td>
+                        <a href="/bookings/view/@booking.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/bookings/edit/@booking.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(booking.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>               
+            }
+        </tbody>
+    </table>
+}
+
+@code 
+{
+    private List<Booking> bookings;
+
+    // One of the component callback methods. This runs when the component intializes. Used for initialization.
+    protected async override Task OnInitializedAsync()
+    {
+        bookings = await _client.GetFromJsonAsync<List<Booking>>(Endpoints.BookingsEndpoint);
+    }
+
+    private async Task Delete(int bookingId)
+    {
+        var booking = bookings.First(booking => booking.Id == bookingId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this booking?"))
+        {
+            await _client.DeleteAsync($"{Endpoints.BookingsEndpoint}{bookingId}");
+            // Refresh cached list of bookings
+            await OnInitializedAsync();
+        }
+    }
+}
