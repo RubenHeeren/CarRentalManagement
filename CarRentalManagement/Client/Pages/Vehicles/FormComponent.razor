@@ -6,6 +6,16 @@
     <ValidationSummary />
 
     <fieldset disabled="@Disabled">
+
+        @* Image upload *@
+        <div class="form-group">
+            <label>Image (max 0.5 mb):</label>
+            <div>
+                <InputFile OnChange="HandleFileSelection"></InputFile>
+                <p class="text-danger">@UploadFileWarning</p>
+            </div>
+        </div>
+
         @* Vehicle makes dropdown *@
         <div class="form-group">
             <label>Make: </label>
@@ -113,6 +123,7 @@
     [Parameter] public bool Disabled { get; set; } = false;
     [Parameter] public Vehicle Vehicle { get; set; }
     [Parameter] public string ButtonText { get; set; } = "Save";
+    private string UploadFileWarning;
 
     // Callback for the form on submit.
     [Parameter] public EventCallback OnValidSubmit { get; set; }
@@ -126,5 +137,33 @@
         makes = await _client.GetFromJsonAsync<List<Make>>(Endpoints.MakesEndpoint);
         models = await _client.GetFromJsonAsync<List<Model>>(Endpoints.ModelsEndpoint);
         colours = await _client.GetFromJsonAsync<List<Colour>>(Endpoints.ColoursEndpoint);
+    }
+
+    private async void HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            var ext = System.IO.Path.GetExtension(file.Name);
+
+            if
+            (
+                ext.ToLower().Contains("jpg") ||
+                ext.ToLower().Contains("jpeg") ||
+                ext.ToLower().Contains("png")
+            )
+            {
+                var picId = Guid.NewGuid().ToString().Replace("-", "");
+                Vehicle.ImageName = $"{picId}{ext}";
+                Vehicle.Image = new byte[file.Size];
+                await file.OpenReadStream().ReadAsync(Vehicle.Image);
+                UploadFileWarning = string.Empty;
+            }
+            else
+            {
+                UploadFileWarning = "Please select a valid image file. The extensions jpg, jpeg and png are supported.";
+            }
+        }
     }
 }

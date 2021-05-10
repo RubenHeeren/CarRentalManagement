@@ -11,10 +11,10 @@
 <br />
 
 <a href="/bookings/create" class="btn btn-secondary">
-    <span class="oi oi-plus">
-        Add a new booking
-    </span>
+    <p id="btn-with-icon-and-text"><span class="oi oi-plus"></span>Add a new booking</p>
 </a>
+<hr />
+<br />
 
 @if (bookings == null)
 {
@@ -24,7 +24,7 @@
 }
 else
 {
-    <table class="table table-responsive">
+    <table class="table" id="tableBookings">
         <thead>
             <tr>
                 <th>Customer tax id</th>
@@ -70,12 +70,18 @@ else
         bookings = await _client.GetFromJsonAsync<List<Booking>>(Endpoints.BookingsEndpoint);
     }
 
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
+    }
+
     private async Task Delete(int bookingId)
     {
         var booking = bookings.First(booking => booking.Id == bookingId);
 
         if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this booking?"))
         {
+            // AFter confirm alert
             // Monitor API request and handle errors if there are any.
             _interceptor.MonitorEvent();
 
@@ -83,10 +89,5 @@ else
             // Refresh cached list of bookings
             await OnInitializedAsync();
         }
-    }
-
-    public void Dispose()
-    {
-        _interceptor.DisposeEvent();
     }
 }

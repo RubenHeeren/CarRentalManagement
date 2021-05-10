@@ -48,3 +48,13 @@ a, .btn-link {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+#btn-with-icon-and-text {
+    font-size: 1.25rem;
+    margin-bottom: 0rem;
+    padding: 0.5rem;
+}
+
+    #btn-with-icon-and-text span {
+        padding-right: 1rem;
+    }

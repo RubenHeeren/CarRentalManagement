@@ -6,15 +6,15 @@
 @inject HttpInterceptorService _interceptor
 @*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
 
-<h3 class="card-title">Car Colours</h3>
+<h3 class="card-title">Colours</h3>
 <hr />
 <br />
 
 <a href="/colours/create" class="btn btn-secondary">
-    <span class="oi oi-plus">
-        Add a new colour
-    </span>
+    <p id="btn-with-icon-and-text"><span class="oi oi-plus"></span>Add a new colour</p>
 </a>
+<hr />
+<br />
 
 @if (colours == null)
 {
@@ -24,7 +24,7 @@
 }
 else
 {
-    <table class="table table-responsive">
+    <table class="table" id="table-colours">
         <thead>
             <tr>
                 <th>Name</th>
