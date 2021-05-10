@@ -1,9 +1,38 @@
 ﻿@page "/"
 
-<h1>Car rental management</h1>
-
-<h5>Welcome to this demo project.</h5>
+<h1>CarRentalManagement</h1>
 
 <p>
-    This application allows employees of a car rental company to manage their vehicles.
+    This application allows employees of a car rental company to manage their vehicles. This is the live demo for the learning project built in the Udemy course "Modern Web Development with Blazor and .NET Core 5".
+    <br />
+    Built in .NET version 5.
+    <br />
+    <a href="https://github.com/RubenHeeren/CarRentalManagement">Link to GitHub repo</a>
+    <br />
+    <a href="https://www.udemy.com/course/modern-web-development-with-blazor-and-net-core-5">Link to course</a>
+    <h1>Summary</h1>
+    The Model-View-Controller (MVC) design pattern is implemented, with a little spin on the views part.
+    <br />
+    The model part is implemented so Entity Framework knows which tables to generate.
+    <br />
+    The models are re-used in the controller part of the application where ASP.NET exposes database operations via the so-called HTTP verbs (REST APIs).
+    <br />
+    Lastly the view part of the MVC design pattern is implemented with Blazor. The Blazor part of the application consumes the REST APIs exposed by the controller part of the application.
+    <br />
+    The end-user can perform CRUD operations in a user friendly manner without any reloading because of Blazor.
 </p>
+
+<h1>Stack</h1>
+
+<h4>Front end</h4>
+<ul>
+    <li>Blazor, HTML, CSS, Bootstrap 4 and a little sprinkle of JavaScript.</li>
+</ul>
+
+<h4>Back end</h4>
+<ul>
+    <li>REST API: ASP.NET Controllers</li>
+    <li>Authentication and authorization: ASP.NET Core Identity</li>
+    <li>Global error handling: ASP.NET HttpInterceptorService</li>
+    <li>Database: SQL (Generated via a code-first approach with Microsoft's Entity Framework)</li>
+</ul>
