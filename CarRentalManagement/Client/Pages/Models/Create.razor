@@ -1,6 +1,8 @@
 ﻿@page "/models/create/"
 @inject HttpClient _client
 @inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3 class="card-title">Add a new model</h3>
 <hr />
@@ -15,7 +17,15 @@
 
     private async Task CreateModel()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         await _client.PostAsJsonAsync(Endpoints.ModelsEndpoint, model);
         _navManager.NavigateTo("/models/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

@@ -1,9 +1,11 @@
 ﻿@page "/models/view/{id:int}"
-@inject HttpClient _client;
+@inject HttpClient _client
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3>Viewing details for the model @model.Name.</h3>
 
-<FormComponent Model="model" Disabled ="true"> </FormComponent>
+<FormComponent Model="model" Disabled="true"> </FormComponent>
 
 @code
 {
@@ -12,7 +14,15 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         model = await _client.GetFromJsonAsync<Model>($"{Endpoints.ModelsEndpoint}{id}");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

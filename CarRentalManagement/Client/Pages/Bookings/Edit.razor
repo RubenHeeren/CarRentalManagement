@@ -1,6 +1,8 @@
 ﻿@page "/bookings/edit/{id:int}"
 @inject HttpClient _client
 @inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3 class="card-title">Edit</h3>
 <hr />
@@ -16,12 +18,23 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         booking = await _client.GetFromJsonAsync<Booking>($"{Endpoints.BookingsEndpoint}{id}");
     }
 
     private async Task EditBooking()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         await _client.PutAsJsonAsync($"{Endpoints.BookingsEndpoint}{id}", booking);
         _navManager.NavigateTo("/bookings/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

@@ -2,7 +2,8 @@
 @inject HttpClient _client
 @inject IJSRuntime js
 @attribute [Authorize]
-
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 @*Code here automatically refreshes sort of like a while loop everytime any data changes.*@
 
 <h3 class="card-title">Vehicles</h3>
@@ -52,19 +53,23 @@ else
                             <span class="oi oi-delete"></span>
                         </button>
                     </td>
-                </tr>               
+                </tr>
+
             }
         </tbody>
     </table>
 }
 
-@code 
+@code
 {
     private List<Vehicle> vehicles;
 
     // One of the component callback methods. This runs when the component intializes. Used for initialization.
     protected async override Task OnInitializedAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         vehicles = await _client.GetFromJsonAsync<List<Vehicle>>(Endpoints.VehiclesEndpoint);
     }
 
@@ -74,9 +79,17 @@ else
 
         if (await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the vehicle \"{vehicle.Make.Name} {vehicle.Model.Name}\"?"))
         {
+            // Monitor API request and handle errors if there are any.
+            _interceptor.MonitorEvent();
+
             await _client.DeleteAsync($"{Endpoints.VehiclesEndpoint}{vehicleId}");
             // Refresh cached list of vehicles
             await OnInitializedAsync();
         }
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

@@ -1,9 +1,11 @@
 ﻿@page "/colours/view/{id:int}"
-@inject HttpClient _client;
+@inject HttpClient _client
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3>Viewing details for the colour @colour.Name.</h3>
 
-<FormComponent Colour="colour" Disabled ="true"> </FormComponent>
+<FormComponent Colour="colour" Disabled="true"> </FormComponent>
 
 @code
 {
@@ -12,7 +14,15 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         colour = await _client.GetFromJsonAsync<Colour>($"{Endpoints.ColoursEndpoint}{id}");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

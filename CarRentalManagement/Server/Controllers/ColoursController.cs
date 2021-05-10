@@ -38,7 +38,7 @@ namespace CarRentalManagement.Server.Controllers
         // GET: /Colours/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetColour(int id)
-        {
+        {           
             var colour = await _unitOfWork.Colours.Get(q => q.Id == id);
 
             if (colour == null)

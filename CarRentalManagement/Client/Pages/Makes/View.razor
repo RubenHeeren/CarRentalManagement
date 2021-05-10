@@ -1,9 +1,11 @@
 ﻿@page "/makes/view/{id:int}"
-@inject HttpClient _client;
+@inject HttpClient _client
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3>Viewing details for the make @make.Name.</h3>
 
-<FormComponent Make="make" Disabled ="true"> </FormComponent>
+<FormComponent Make="make" Disabled="true"> </FormComponent>
 
 @code
 {
@@ -12,7 +14,15 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         make = await _client.GetFromJsonAsync<Make>($"{Endpoints.MakesEndpoint}{id}");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

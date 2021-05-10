@@ -1,7 +1,9 @@
 ﻿@* {id:int} customers it so .NET knows this page expects a parameter called id of the data type int. *@
 @page "/customers/edit/{id:int}"
-@inject HttpClient _client;
-@inject NavigationManager _navManager;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3>Edit</h3>
 
@@ -14,14 +16,25 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         customer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}{id}");
     }
 
     private async Task EditCustomer()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Put to API in server project.
         await _client.PutAsJsonAsync($"{Endpoints.CustomersEndpoint}{id}", customer);
         _navManager.NavigateTo("/customers/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

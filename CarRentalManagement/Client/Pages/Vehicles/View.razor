@@ -1,5 +1,7 @@
 ﻿@page "/vehicles/view/{id:int}"
-@inject HttpClient _client;
+@inject HttpClient _client
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 @if (vehicle != null && vehicle.Make != null && vehicle.Model != null)
 {
@@ -23,7 +25,15 @@ else
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         vehicle = await _client.GetFromJsonAsync<Vehicle>($"{Endpoints.VehiclesEndpoint}{id}");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

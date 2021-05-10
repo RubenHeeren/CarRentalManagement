@@ -1,12 +1,14 @@
 ﻿@page "/vehicles/edit/{id:int}"
 @inject HttpClient _client
 @inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3 class="card-title">Edit vehicle</h3>
 <hr />
 <br />
 
-<FormComponent ButtonText="Update vehicle" OnValidSubmit="@EditVehicle" Vehicle="vehicle" ></FormComponent>
+<FormComponent ButtonText="Update vehicle" OnValidSubmit="@EditVehicle" Vehicle="vehicle"></FormComponent>
 
 @code
 {
@@ -16,13 +18,24 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         vehicle = await _client.GetFromJsonAsync<Vehicle>($"{Endpoints.VehiclesEndpoint}{id}");
     }
 
     private async Task EditVehicle()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         await _client.PutAsJsonAsync(Endpoints.VehiclesEndpoint, vehicle);
         _navManager.NavigateTo("/vehicles/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

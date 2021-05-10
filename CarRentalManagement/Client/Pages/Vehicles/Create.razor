@@ -1,12 +1,14 @@
 ﻿@page "/vehicles/create/"
 @inject HttpClient _client
 @inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3 class="card-title">Add a new vehicle</h3>
 <hr />
 <br />
 
-<FormComponent ButtonText="Add vehicle" OnValidSubmit="@CreateVehicle" Vehicle="vehicle" ></FormComponent>
+<FormComponent ButtonText="Add vehicle" OnValidSubmit="@CreateVehicle" Vehicle="vehicle"></FormComponent>
 
 @code
 {
@@ -15,7 +17,15 @@
 
     private async Task CreateVehicle()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         await _client.PostAsJsonAsync(Endpoints.VehiclesEndpoint, vehicle);
         _navManager.NavigateTo("/vehicles/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

@@ -1,7 +1,9 @@
 ﻿@* {id:int} colours it so .NET knows this page expects a parameter called id of the data type int. *@
 @page "/colours/edit/{id:int}"
-@inject HttpClient _client;
-@inject NavigationManager _navManager;
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@implements IDisposable
+@inject HttpInterceptorService _interceptor
 
 <h3>Edit</h3>
 
@@ -14,14 +16,25 @@
 
     protected async override Task OnParametersSetAsync()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Fetch from API in server project.
         colour = await _client.GetFromJsonAsync<Colour>($"{Endpoints.ColoursEndpoint}{id}");
     }
 
     private async Task EditColour()
     {
+        // Monitor API request and handle errors if there are any.
+        _interceptor.MonitorEvent();
+
         // Put to API in server project.
         await _client.PutAsJsonAsync($"{Endpoints.ColoursEndpoint}{id}", colour);
         _navManager.NavigateTo("/colours/");
+    }
+
+    public void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

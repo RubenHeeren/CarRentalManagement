@@ -11,4 +11,5 @@ Built in .NET version 5.
 ## Back end ##
 * REST API: ASP.NET MVC
 * Authentication and authorization: ASP.NET Core Identity
+* Global error handling: ASP.NET HttpInterceptorService
 * Database: SQL (Generated via a code-first approach with Microsoft's Entity Framework)
